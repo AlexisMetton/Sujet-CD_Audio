@@ -4,7 +4,7 @@ describe("Gestion des CD Audio", () => {
     cy.visit("http://localhost:5173");
   });
 
-  it("Doit afficher la liste des CDs disponibles", () => {
+  it("devrait afficher la liste des CDs disponibles", () => {
     // On vérifie que le titre de la liste existe
     cy.contains("h2", "Liste des CD 🎵").should("be.visible");
 
@@ -12,7 +12,7 @@ describe("Gestion des CD Audio", () => {
     cy.get("ul").should("exist");
   });
 
-  it("Doit permettre d’ajouter un nouveau CD", () => {
+  it("devrait permettre d’ajouter un nouveau CD", () => {
     // Données de test
     const cdData = {
       title: "Test Album",
@@ -34,11 +34,11 @@ describe("Gestion des CD Audio", () => {
     );
   });
 
-  it("Doit permettre de supprimer un CD", () => {
+  it("devrait permettre de supprimer un CD", () => {
     // On commence par ajouter un CD pour pouvoir le supprimer
     const cdData = {
-      title: "Album à Supprimer",
-      artist: "Artiste Test",
+      title: "Album à Supprimer test",
+      artist: "Artiste Test test",
       year: "2024",
     };
 
@@ -64,7 +64,7 @@ describe("Gestion des CD Audio", () => {
     );
   });
 
-  it("devrait gérer le cas où aucun CD n’est disponible", () => {
+  it("Doit gérer le cas où aucun CD n’est disponible", () => {
     // On intercepte la requête GET pour simuler une liste vide
     cy.intercept("GET", "http://localhost:5005/api/cds", {
       statusCode: 200,

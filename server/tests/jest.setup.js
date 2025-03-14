@@ -4,11 +4,12 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports = async () => {
+  // Démarrer le conteneur PostgreSQL
   const container = await new PostgreSqlContainer("postgres:latest")
     .withDatabase("cd_database")
     .start();
 
-  // Définir les variables d'environnement de base
+  // Définir les variables de configuration
   const dbConfig = {
     DB_USER: container.getUsername(),
     DB_PASSWORD: container.getPassword(),
@@ -17,19 +18,23 @@ module.exports = async () => {
     DB_NAME: container.getDatabase(),
   };
 
-  // Créer URI_DB manuellement dans le setup
-  process.env.URI_DB = `postgresql://${dbConfig.DB_USER}:${dbConfig.DB_PASSWORD}@${dbConfig.DB_HOST}:${dbConfig.DB_PORT}/${dbConfig.DB_NAME}`;
+  // Créer l’URI de connexion
+  const connectionString = `postgresql://${dbConfig.DB_USER}:${dbConfig.DB_PASSWORD}@${dbConfig.DB_HOST}:${dbConfig.DB_PORT}/${dbConfig.DB_NAME}`;
+  process.env.URI_DB = connectionString;
 
-  // Utiliser la nouvelle URI_DB pour la connexion
-  const pool = new Pool({
+  // Créer une nouvelle instance de Pool pour les tests
+  const testPool = new Pool({
     connectionString: process.env.URI_DB,
   });
 
+  // Exécuter le script SQL pour initialiser la base
   const sqlPath = path.join(__dirname, "../configs/import.sql");
   const createTableSQL = fs.readFileSync(sqlPath, "utf8");
-  await pool.query(createTableSQL);
+  await testPool.query(createTableSQL);
 
-  await pool.end();
+  // Fermer la connexion temporaire
+  await testPool.end();
 
+  // Stocker le conteneur et la config pour les tests
   global.__POSTGRES_CONTAINER__ = container;
 };
